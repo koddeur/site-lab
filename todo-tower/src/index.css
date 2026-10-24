@@ -278,6 +278,36 @@ body {
   white-space: nowrap;
 }
 
+/* ── supprimer ─────────────────────────────────────────────
+   Une corbeille discrète en bout de ligne : elle ne rougit
+   qu'au survol, pour ne pas crier sur chaque ligne. */
+.log-del {
+  width: 1%;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  text-align: right;
+}
+
+.del-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--ink-faint);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+/* au survol seulement là où il existe : sur un écran tactile il
+   resterait collé après le tap */
+@media (hover: hover) {
+  .del-btn:hover { color: #c2410c; background: rgba(194, 65, 12, 0.1); }
+}
+.del-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
 .tag {
   display: inline-block;
   padding: 4px 10px;
@@ -297,7 +327,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .add-input, .add-btn, .restack { transition: none; }
+  .add-input, .add-btn, .restack, .del-btn { transition: none; }
 }
 
 /* ══ Todo tower — CSS d'origine (Bencho, MIT) ════════════════

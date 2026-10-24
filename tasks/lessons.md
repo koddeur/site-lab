@@ -3,3 +3,4 @@
 - todo-tower : la tour Bencho reconstruisait le monde quand le nombre de cartes changeait (box H = f(count)) → box fixe + effet de synchro qui ajoute/retire des corps sans rebuild ; ids des murs déplacés à 1e9 car les ids de tâches sont un compteur.
 - todo-tower plein écran : page en 100dvh + scène flex:1, le plafond de briques est déduit de la hauteur de la scène (ResizeObserver) au lieu d'un MAX fixe, sinon la pile sortait de l'écran sur les petits écrans.
 - todo-tower relevé : media query placée AVANT la règle de base (.log) → écrasée par la cascade ; toujours mettre le @media après la règle qu'il surcharge.
+- Hover sur écran tactile : l'état :hover reste collé après un tap → envelopper les hovers colorés dans @media (hover: hover).

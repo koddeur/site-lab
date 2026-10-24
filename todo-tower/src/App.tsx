@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { Trash2 } from "lucide-react";
 import { TodoTower } from "./TodoTower";
 
 /* ── combien de briques tiennent ──────────────────────────
@@ -85,6 +86,18 @@ export default function App() {
       return { ...s, todos: s.todos.filter((x) => x.id !== id), done: [{ ...t, doneAt: Date.now() }, ...s.done] };
     });
 
+  /* une tâche à faire supprimée quitte aussi la pile ; une terminée, seulement le relevé */
+  const drop = (id: number) =>
+    setSaved((s) => ({ ...s, todos: s.todos.filter((x) => x.id !== id), done: s.done.filter((x) => x.id !== id) }));
+
+  const del = (t: Task) => (
+    <td className="log-del">
+      <button type="button" className="del-btn" onClick={() => drop(t.id)} aria-label={`Supprimer : ${t.text}`} title="Supprimer">
+        <Trash2 size={16} strokeWidth={1.75} />
+      </button>
+    </td>
+  );
+
   return (
     <main>
       <div className="screen">
@@ -156,6 +169,9 @@ export default function App() {
                   <th scope="col">Tâche</th>
                   <th scope="col">Statut</th>
                   <th scope="col">Date</th>
+                  <th scope="col">
+                    <span className="sr-only">Supprimer</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +182,7 @@ export default function App() {
                       <span className="tag" data-state="todo">À faire</span>
                     </td>
                     <td className="log-date">Ajoutée le {when.format(t.at)}</td>
+                    {del(t)}
                   </tr>
                 ))}
                 {done.map((t) => (
@@ -175,6 +192,7 @@ export default function App() {
                       <span className="tag" data-state="done">Terminée</span>
                     </td>
                     <td className="log-date">Terminée le {when.format(t.doneAt)}</td>
+                    {del(t)}
                   </tr>
                 ))}
               </tbody>
