@@ -151,6 +151,30 @@ body {
   overflow: hidden;
 }
 
+/* ── remettre en ordre ─────────────────────────────────────
+   Dans le coin de la scène, au-dessus des briques : discret,
+   parce que la pile en désordre n'est pas une erreur. */
+.restack {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  height: 36px;
+  padding: 0 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 150ms ease;
+}
+.restack:active:not(:disabled) { transform: scale(0.97); }
+.restack:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.restack:disabled { opacity: 0.4; cursor: default; }
+
 /* la boîte du composant, posée au milieu du sol */
 .tower-anchor {
   position: absolute;
@@ -273,7 +297,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .add-input, .add-btn { transition: none; }
+  .add-input, .add-btn, .restack { transition: none; }
 }
 
 /* ══ Todo tower — CSS d'origine (Bencho, MIT) ════════════════

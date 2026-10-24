@@ -49,6 +49,7 @@ export default function App() {
   const input = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLElement>(null);
   const [cap, setCap] = useState(MAX);
+  const [order, setOrder] = useState(0);
   const { todos, done } = saved;
   const full = todos.length >= cap;
 
@@ -114,11 +115,19 @@ export default function App() {
           </button>
         </form>
         <section ref={stage} className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
+          <button
+            type="button"
+            className="restack"
+            onClick={() => setOrder((n) => n + 1)}
+            disabled={todos.length === 0}
+          >
+            Remettre en ordre
+          </button>
           {todos.length === 0 && (
             <p className="empty">Rien sur le chantier. Ajoute une tâche pour poser la première brique.</p>
           )}
           <div className="tower-anchor">
-            <TodoTower todos={todos} onDone={finish} />
+            <TodoTower todos={todos} onDone={finish} order={order} />
           </div>
         </section>
 

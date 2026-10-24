@@ -709,17 +709,20 @@ const FLOOR = 1_000_000_000, LEFT = FLOOR + 1, RIGHT = FLOOR + 2, ROOF = FLOOR +
 
 /* the oldest task is the bottom brick: each new one is laid on
    top of the ones before it */
-const tower = (todos: Todo[], sl: number, fr: number): Body[] =>
-  todos.map((t, i) => box(t.id, LEAN[i % LEAN.length] * sl * 16, HH + i * CH, HW, HH, fr));
+const tower = (todos: Todo[], sl: number, fr: number, lift = 0): Body[] =>
+  todos.map((t, i) => box(t.id, LEAN[i % LEAN.length] * sl * 16, HH + i * CH + lift, HW, HH, fr));
 
 export function TodoTower({
   todos,
   onDone,
+  order = 0,
   gravity = 50,
   slip = 45,
 }: {
   todos: Todo[];
   onDone: (id: number) => void;
+  /* bumped by the page to put the pile back in list order */
+  order?: number;
   gravity?: number;
   slip?: number;
 }) {
@@ -993,6 +996,27 @@ export function TodoTower({
     draw();
     go();
   }, [todos, fr, measure, draw, go]);
+
+  /* ── back in order ───────────────────────────────────────
+     Every brick is picked up and the tower is stood again in
+     list order — the oldest at the bottom — a little above the
+     floor, so it lands rather than appears. The way the old
+     demo refilled itself, kept for the one time it is asked
+     for. A card in the hand is let go first. */
+  useEffect(() => {
+    if (!order) return;
+    hands.current.drop();
+    measure();
+    const T = W0.current;
+    const list = todos0.current;
+    const { top, floor } = room.current;
+    const lift = Math.max(0, Math.min(140, top - floor - list.length * CH - 4));
+    T.bodies = [...tower(list, sl, fr, floor + lift), ...T.bodies.filter((b) => b.id >= FLOOR)];
+    T.arbiters.clear();
+    draw();
+    go();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order]);
 
   /* the stage changes size with the window and while the
      overlay opens round it; the room follows */
