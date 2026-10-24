@@ -1,0 +1,1 @@
+- Structure : chaque expérience = dossier indépendant avec son package.json (pas de monorepo/workspaces) → ajouter un projet = copier le dossier + ligne dans README.
