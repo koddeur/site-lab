@@ -102,7 +102,15 @@ export default function App() {
     <main>
       <div className="screen">
         <header className="top">
-          <h1 className="title">Todo tower</h1>
+          <h1 className="title">
+            {/* le favicon, en couleurs du thème : encre pour la pile, jaune pour la brique qu'on pose */}
+            <svg className="logo" viewBox="0 0 32 32" aria-hidden="true">
+              <rect x="6" y="20" width="20" height="8" rx="2" fill="currentColor" />
+              <rect x="4" y="11" width="20" height="8" rx="2" fill="currentColor" transform="rotate(-4 14 15)" />
+              <rect x="9" y="2" width="20" height="8" rx="2" fill="var(--hivis)" transform="rotate(6 19 6)" />
+            </svg>
+            TowerDo
+          </h1>
           <p className="count" aria-live="polite">
             <span className="count-n">{todos.length}</span> / {cap} briques
           </p>
