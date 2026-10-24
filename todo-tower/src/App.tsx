@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { TodoTower, type Todo } from "./TodoTower";
+import { TodoTower } from "./TodoTower";
 
 /* ── combien de briques tiennent ──────────────────────────
    La scène prend la hauteur qui reste à l'écran, donc le
@@ -14,21 +14,34 @@ const KEY = "todo-tower:v1";
 
 const SEED = ["Arroser les plantes", "Répondre à Nadia", "Renouveler le domaine"];
 
-type Saved = { todos: Todo[]; next: number };
+/* `at` : ajoutée le ; `doneAt` : terminée le (ms) */
+type Task = { id: number; text: string; at: number };
+type Done = Task & { doneAt: number };
+type Saved = { todos: Task[]; done: Done[]; next: number };
 
-/* le stockage peut être absent (navigation privée) : la page marche sans */
+/* le stockage peut être absent (navigation privée) : la page marche sans.
+   Une sauvegarde d'avant le tableau n'a ni `done` ni `at` : on complète. */
 function load(): Saved {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const s = JSON.parse(raw) as Saved;
-      if (Array.isArray(s.todos) && Number.isInteger(s.next)) return s;
+      const s = JSON.parse(raw) as Partial<Saved>;
+      if (Array.isArray(s.todos) && Number.isInteger(s.next)) {
+        return {
+          todos: s.todos.map((t) => ({ ...t, at: t.at ?? Date.now() })),
+          done: Array.isArray(s.done) ? s.done : [],
+          next: s.next!,
+        };
+      }
     }
   } catch {
     /* ignoré : on repart des exemples */
   }
-  return { todos: SEED.map((text, id) => ({ id, text })), next: SEED.length };
+  const now = Date.now();
+  return { todos: SEED.map((text, id) => ({ id, text, at: now })), done: [], next: SEED.length };
 }
+
+const when = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 export default function App() {
   const [saved, setSaved] = useState(load);
@@ -36,7 +49,7 @@ export default function App() {
   const input = useRef<HTMLInputElement>(null);
   const stage = useRef<HTMLElement>(null);
   const [cap, setCap] = useState(MAX);
-  const { todos } = saved;
+  const { todos, done } = saved;
   const full = todos.length >= cap;
 
   useEffect(() => {
@@ -59,55 +72,107 @@ export default function App() {
     e.preventDefault();
     const text = draft.trim();
     if (!text || full) return;
-    setSaved((s) => ({ todos: [...s.todos, { id: s.next, text }], next: s.next + 1 }));
+    setSaved((s) => ({ ...s, todos: [...s.todos, { id: s.next, text, at: Date.now() }], next: s.next + 1 }));
     setDraft("");
     input.current?.focus();
   };
 
-  const done = (id: number) => setSaved((s) => ({ ...s, todos: s.todos.filter((t) => t.id !== id) }));
+  const finish = (id: number) =>
+    setSaved((s) => {
+      const t = s.todos.find((x) => x.id === id);
+      if (!t) return s;
+      return { ...s, todos: s.todos.filter((x) => x.id !== id), done: [{ ...t, doneAt: Date.now() }, ...s.done] };
+    });
 
   return (
-    <main className="page">
-      <header className="top">
-        <h1 className="title">Todo tower</h1>
-        <p className="count" aria-live="polite">
-          <span className="count-n">{todos.length}</span> / {cap} briques
+    <main>
+      <div className="screen">
+        <header className="top">
+          <h1 className="title">Todo tower</h1>
+          <p className="count" aria-live="polite">
+            <span className="count-n">{todos.length}</span> / {cap} briques
+          </p>
+        </header>
+
+        <form className="add" onSubmit={add}>
+          <label className="sr-only" htmlFor="task">
+            Nouvelle tâche
+          </label>
+          <input
+            ref={input}
+            id="task"
+            className="add-input"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={full ? "La pile est pleine" : "Une tâche à empiler…"}
+            maxLength={48}
+            autoComplete="off"
+            disabled={full}
+          />
+          <button className="add-btn" type="submit" disabled={full || !draft.trim()}>
+            Empiler
+          </button>
+        </form>
+        <section ref={stage} className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
+          {todos.length === 0 && (
+            <p className="empty">Rien sur le chantier. Ajoute une tâche pour poser la première brique.</p>
+          )}
+          <div className="tower-anchor">
+            <TodoTower todos={todos} onDone={finish} />
+          </div>
+        </section>
+
+        <p className="hint">
+          {full
+            ? "La pile touche le plafond. Termine une tâche pour en ajouter une."
+            : "Coche une brique pour la terminer. Attrape-la pour la déplacer ou la lancer."}
         </p>
-      </header>
+      </div>
 
-      <form className="add" onSubmit={add}>
-        <label className="sr-only" htmlFor="task">
-          Nouvelle tâche
-        </label>
-        <input
-          ref={input}
-          id="task"
-          className="add-input"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={full ? "La pile est pleine" : "Une tâche à empiler…"}
-          maxLength={48}
-          autoComplete="off"
-          disabled={full}
-        />
-        <button className="add-btn" type="submit" disabled={full || !draft.trim()}>
-          Empiler
-        </button>
-      </form>
-      <section ref={stage} className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
-        {todos.length === 0 && (
-          <p className="empty">Rien sur le chantier. Ajoute une tâche pour poser la première brique.</p>
+      {/* ── le relevé ─────────────────────────────────────────
+         Sous la tour, hors du premier écran : à faire d'abord,
+         dans l'ordre de la pile, puis les terminées, la plus
+         récente en haut. */}
+      <section className="log" aria-labelledby="log-title">
+        <h2 id="log-title" className="log-title">
+          Relevé <span className="log-sum">{todos.length} à faire · {done.length} {done.length > 1 ? "terminées" : "terminée"}</span>
+        </h2>
+        {todos.length + done.length === 0 ? (
+          <p className="log-empty">Aucune tâche pour l'instant.</p>
+        ) : (
+          <div className="log-wrap">
+            <table className="log-table">
+              <thead>
+                <tr>
+                  <th scope="col">Tâche</th>
+                  <th scope="col">Statut</th>
+                  <th scope="col">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {todos.map((t) => (
+                  <tr key={`t${t.id}`}>
+                    <td>{t.text}</td>
+                    <td>
+                      <span className="tag" data-state="todo">À faire</span>
+                    </td>
+                    <td className="log-date">Ajoutée le {when.format(t.at)}</td>
+                  </tr>
+                ))}
+                {done.map((t) => (
+                  <tr key={`d${t.id}`} data-done>
+                    <td>{t.text}</td>
+                    <td>
+                      <span className="tag" data-state="done">Terminée</span>
+                    </td>
+                    <td className="log-date">Terminée le {when.format(t.doneAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-        <div className="tower-anchor">
-          <TodoTower todos={todos} onDone={done} />
-        </div>
       </section>
-
-      <p className="hint">
-        {full
-          ? "La pile touche le plafond. Termine une tâche pour en ajouter une."
-          : "Coche une brique pour la terminer. Attrape-la pour la déplacer ou la lancer."}
-      </p>
     </main>
   );
 }

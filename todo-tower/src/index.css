@@ -53,10 +53,11 @@ body {
 
 /* ══ La page ════════════════════════════════════════════════ */
 /* ── tout sur un écran ─────────────────────────────────────
-   La page fait exactement la hauteur visible et la scène prend
-   ce qui reste : la pile se voit sans défiler. dvh plutôt que
-   vh, sinon la barre d'adresse mobile mange le bas. */
-.page {
+   Le premier écran fait exactement la hauteur visible et la
+   scène prend ce qui reste : la pile se voit sans défiler. Le
+   relevé vient après, en dessous. dvh plutôt que vh, sinon la
+   barre d'adresse mobile mange le bas. */
+.screen {
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -66,7 +67,7 @@ body {
 /* sur ordinateur la scène prend toute la largeur : plus de
    sol pour lancer les briques */
 @media (min-width: 900px) {
-  .page { padding: 28px 32px 20px; }
+  .screen { padding: 28px 32px 20px; }
 }
 
 .top {
@@ -177,8 +178,97 @@ body {
   color: var(--ink-faint);
 }
 
+/* ══ Le relevé ══════════════════════════════════════════════
+   Sous la tour. Même encre, même sol : c'est le carnet de
+   chantier, pas une deuxième application. */
+.log {
+  padding: 24px 16px 48px;
+}
+@media (min-width: 900px) {
+  .log { padding: 24px 32px 64px; }
+}
+
+.log-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 16px;
+  font-size: 28px;
+  font-weight: 800;
+  font-stretch: 75%;
+  letter-spacing: -0.03em;
+}
+
+.log-sum {
+  font: 500 14px/1 "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing: 0;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.log-empty {
+  margin: 0;
+  color: var(--ink-faint);
+}
+
+.log-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.log-table th {
+  padding: 12px 18px;
+  text-align: left;
+  font: 500 12px/1 "IBM Plex Mono", ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--edge);
+}
+
+.log-table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--edge);
+  vertical-align: middle;
+}
+.log-table tr:last-child td { border-bottom: 0; }
+
+/* une tâche terminée reste lisible, mais se retire d'un cran */
+.log-table tr[data-done] td:first-child {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.log-date {
+  font: 400 13px/1.3 "IBM Plex Mono", ui-monospace, monospace;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+/* le jaune de chantier : ce qui est encore sur la pile */
+.tag[data-state="todo"] { background: var(--hivis); color: var(--on-hivis); }
+.tag[data-state="done"] { background: var(--ground); color: var(--ink-faint); }
+
 @media (max-width: 520px) {
-  .page { padding-top: 16px; }
+  .screen { padding-top: 16px; }
+  .log-table th:nth-child(3), .log-date { display: none; }
   .add-btn { padding: 0 16px; }
 }
 
