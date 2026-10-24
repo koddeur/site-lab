@@ -60,9 +60,13 @@ body {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  max-width: 880px;
-  margin: 0 auto;
   padding: 24px 16px 16px;
+}
+
+/* sur ordinateur la scène prend toute la largeur : plus de
+   sol pour lancer les briques */
+@media (min-width: 900px) {
+  .page { padding: 28px 32px 20px; }
 }
 
 .top {
