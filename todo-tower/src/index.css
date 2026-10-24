@@ -1,7 +1,7 @@
 /* ══ Les tokens du site ═════════════════════════════════════
    Béton pour le sol, briques claires, encre bleu nuit, et un
    jaune de chantier gardé pour le seul geste qui compte :
-   empiler. */
+   ajouter une tâche. */
 :root {
   --page: #eef0eb;
   --ground: #dfe3dc;
@@ -95,7 +95,7 @@ body {
 }
 .count-n { color: var(--ink); }
 
-/* ── empiler ───────────────────────────────────────────────── */
+/* ── ajouter ───────────────────────────────────────────────── */
 .add {
   display: flex;
   gap: 8px;

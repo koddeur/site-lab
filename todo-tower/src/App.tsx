@@ -105,13 +105,13 @@ export default function App() {
             className="add-input"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder={full ? "La pile est pleine" : "Une tâche à empiler…"}
+            placeholder={full ? "La pile est pleine" : "Une tâche à ajouter…"}
             maxLength={48}
             autoComplete="off"
             disabled={full}
           />
           <button className="add-btn" type="submit" disabled={full || !draft.trim()}>
-            Empiler
+            Ajouter
           </button>
         </form>
         <section ref={stage} className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
