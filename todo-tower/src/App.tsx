@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { TodoTower, type Todo } from "./TodoTower";
 
-/* la scène est dimensionnée pour ce nombre de briques (voir .tower-stage) */
+/* ── combien de briques tiennent ──────────────────────────
+   La scène prend la hauteur qui reste à l'écran, donc le
+   plafond suit : une brique fait 46px, et on garde l'élan d'une
+   brique qu'on lâche (70px) plus la marge des murs. Jamais plus
+   de 12, jamais moins de 3. */
 const MAX = 12;
+const BRICK = 46;
+const HEADROOM = 90;
+const capOf = (h: number) => Math.max(3, Math.min(MAX, Math.floor((h - HEADROOM) / BRICK)));
 const KEY = "todo-tower:v1";
 
 const SEED = ["Arroser les plantes", "Répondre à Nadia", "Renouveler le domaine"];
@@ -27,8 +34,18 @@ export default function App() {
   const [saved, setSaved] = useState(load);
   const [draft, setDraft] = useState("");
   const input = useRef<HTMLInputElement>(null);
+  const stage = useRef<HTMLElement>(null);
+  const [cap, setCap] = useState(MAX);
   const { todos } = saved;
-  const full = todos.length >= MAX;
+  const full = todos.length >= cap;
+
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setCap(capOf(el.clientHeight)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     try {
@@ -54,7 +71,7 @@ export default function App() {
       <header className="top">
         <h1 className="title">Todo tower</h1>
         <p className="count" aria-live="polite">
-          <span className="count-n">{todos.length}</span> / {MAX} briques
+          <span className="count-n">{todos.length}</span> / {cap} briques
         </p>
       </header>
 
@@ -77,9 +94,7 @@ export default function App() {
           Empiler
         </button>
       </form>
-      {full && <p className="note">Douze briques, c'est le plafond. Termine une tâche pour en ajouter une.</p>}
-
-      <section className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
+      <section ref={stage} className="tower-stage" data-stroke="on" aria-label="Pile de tâches">
         {todos.length === 0 && (
           <p className="empty">Rien sur le chantier. Ajoute une tâche pour poser la première brique.</p>
         )}
@@ -88,7 +103,11 @@ export default function App() {
         </div>
       </section>
 
-      <p className="hint">Coche une brique pour la terminer. Attrape-la pour la déplacer ou la lancer.</p>
+      <p className="hint">
+        {full
+          ? "La pile touche le plafond. Termine une tâche pour en ajouter une."
+          : "Coche une brique pour la terminer. Attrape-la pour la déplacer ou la lancer."}
+      </p>
     </main>
   );
 }

@@ -52,10 +52,17 @@ body {
 }
 
 /* ══ La page ════════════════════════════════════════════════ */
+/* ── tout sur un écran ─────────────────────────────────────
+   La page fait exactement la hauteur visible et la scène prend
+   ce qui reste : la pile se voit sans défiler. dvh plutôt que
+   vh, sinon la barre d'adresse mobile mange le bas. */
 .page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   max-width: 880px;
   margin: 0 auto;
-  padding: 48px 16px 32px;
+  padding: 24px 16px 16px;
 }
 
 .top {
@@ -63,12 +70,12 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .title {
   margin: 0;
-  font-size: clamp(40px, 9vw, 72px);
+  font-size: clamp(36px, 7vw, 56px);
   font-weight: 800;
   font-stretch: 75%;
   line-height: 0.9;
@@ -124,20 +131,16 @@ body {
 .add-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .add-btn:disabled { opacity: 0.45; cursor: default; }
 
-.note {
-  margin: 10px 2px 0;
-  font-size: 14px;
-  color: var(--ink-faint);
-}
-
 /* ── la scène ──────────────────────────────────────────────
    C'est la pièce de la tour : TodoTower mesure ses murs et son
-   plafond sur cet élément. 640px laisse tenir les douze
-   briques (12 × 46) avec l'élan d'une brique qu'on lâche. */
+   plafond sur cet élément. Sa hauteur est le reste de l'écran,
+   et App en déduit combien de briques elle peut tenir. */
 .tower-stage {
   position: relative;
-  height: 640px;
-  margin-top: 20px;
+  flex: 1;
+  /* jamais plus bas que la boîte du composant (320px) */
+  min-height: 330px;
+  margin-top: 16px;
   background: var(--ground);
   border-radius: 20px;
   overflow: hidden;
@@ -165,13 +168,13 @@ body {
 }
 
 .hint {
-  margin: 14px 2px 0;
+  margin: 10px 2px 0;
   font-size: 14px;
   color: var(--ink-faint);
 }
 
 @media (max-width: 520px) {
-  .page { padding-top: 32px; }
+  .page { padding-top: 16px; }
   .add-btn { padding: 0 16px; }
 }
 
