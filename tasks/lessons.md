@@ -1,2 +1,3 @@
 - Structure : chaque expérience = dossier indépendant avec son package.json (pas de monorepo/workspaces) → ajouter un projet = copier le dossier + ligne dans README.
 - GitHub Pages multi-sites : base: './' dans chaque vite.config + build.sh qui copie chaque dist dans _site/<nom>/ → les liens relatifs marchent sous /site-lab/.
+- todo-tower : la tour Bencho reconstruisait le monde quand le nombre de cartes changeait (box H = f(count)) → box fixe + effet de synchro qui ajoute/retire des corps sans rebuild ; ids des murs déplacés à 1e9 car les ids de tâches sont un compteur.

@@ -6,3 +6,4 @@ Bac à sable d'expériences de sites. Chaque dossier est un projet indépendant.
 |---|---|---|
 | [ascii-wake](./ascii-wake) | React + TS + Vite | `cd ascii-wake && npm i && npm run dev` |
 | [pokemon-card](./pokemon-card) | React + TS + Vite | `cd pokemon-card && npm i && npm run dev` |
+| [todo-tower](./todo-tower) | React + TS + Vite | `cd todo-tower && npm i && npm run dev` |
